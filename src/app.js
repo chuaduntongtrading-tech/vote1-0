@@ -38,7 +38,7 @@ async function showLoginHelp(msg, retry){
         <button class="btn ghost" id="lh-guest">Teruskan sebagai tetamu</button>
       </div>`);
     $('lh-retry').onclick = () => { closeSheet(); retry && retry(); };
-    $('lh-out').onclick = async () => { await signOut(); closeSheet(); toast('Anda telah log keluar.'); };
+    $('lh-out').onclick = async () => { await signOut(); closeSheet(); syncLogout(); toast('Anda telah log keluar.'); };
     $('lh-guest').onclick = () => { closeSheet(); setGuest(); };
     return;
   }
@@ -206,7 +206,7 @@ async function initAnalytics(){
 const A = {mode:null};
 function maybeDisclaimer(){ let a = false; try{ a = localStorage.getItem('vote_ack') === '1'; }catch(_){} if(!a) showDisclaimer(true); }
 function showChoose(){
-  setTimeout(maybeDisclaimer, 0);
+  setTimeout(maybeDisclaimer, 0); syncLogout();
   $('home-access').classList.add('hidden'); $('home-choose').classList.remove('hidden');
   $('home-who').textContent = A.mode === 'user' ? 'Log masuk sebagai pengguna pilot. Kiraan penggunaan tanpa nama direkodkan.' : 'Mod tetamu. Penggunaan tidak direkodkan. Penjanaan AI melalui salin-tampal ke ChatGPT atau Gemini; log masuk untuk penjanaan automatik.';
 }
@@ -217,12 +217,9 @@ $('h-login').onclick = async () => {
   if(ok){ A.mode = 'user'; L.mode = 'auto'; renderLibMode(); showChoose(); }
   else showLoginHelp('Log masuk diperlukan untuk mod pengguna. Anda boleh teruskan sebagai tetamu.', () => $('h-login').click());
 };
-$('h-admin').onclick = async () => {
-  const ok = await initAnalytics();
-  if(ok && AN.isOwner){ A.mode = 'user'; L.mode = 'auto'; renderLibMode(); showChoose(); go('settings'); }
-  else if(ok) toast('Akaun ini bukan pentadbir VOTe.', 6000); else showLoginHelp('Log masuk sebagai pemilik (peranan admin) diperlukan untuk akses pentadbir.', () => $('h-admin').click());
-};
-$('h-switch').onclick = async () => { if(A.mode === 'user') await signOut(); A.mode = null; AN.data = null; AN.ref = null; AN.isOwner = false; AN.uid = null; $('home-access').classList.remove('hidden'); $('home-choose').classList.add('hidden'); $('admin').classList.add('hidden'); };
+async function syncLogout(){ const u = await currentUser().catch(() => null); $('h-logout').classList.toggle('hidden', !u); }
+$('h-logout').onclick = async () => { await signOut(); A.mode = null; AN.data = null; AN.ref = null; AN.isOwner = false; AN.uid = null; $('admin').classList.add('hidden'); $('home-access').classList.remove('hidden'); $('home-choose').classList.add('hidden'); go('home'); syncLogout(); toast('Anda telah log keluar.'); };
+$('h-switch').onclick = async () => { if(A.mode === 'user') await signOut(); A.mode = null; AN.data = null; AN.ref = null; AN.isOwner = false; AN.uid = null; $('home-access').classList.remove('hidden'); $('home-choose').classList.add('hidden'); $('admin').classList.add('hidden'); syncLogout(); };
 function touchDay(){ AN.data.d[today()] ||= {}; }
 function track(key, n = 1){
   if(!AN.data) return;
@@ -1113,4 +1110,4 @@ auth.handleAuthCallback().then(r => {
   if(r.type === 'recovery') showNewPassword();
   else if(r.type === 'confirmation') toast('E-mel disahkan. Anda telah log masuk; tekan Sign Up / Log In untuk mula.', 6000);
   else if(r.type === 'invite' && r.token) showNewPassword(r.token);
-}).catch(() => {});
+}).catch(() => {}).finally(syncLogout);

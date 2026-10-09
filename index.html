@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>VOTe 1.0 · Voice Occupational Therapy</title>
+<meta name="description" content="VOTe 1.0 membantu Occupational Therapist menstrukturkan cerita sesi kepada draf nota SOAP mengikut panduan KKM.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/src/styles.css">
+<link rel="icon" href="/img/logo-sm.webp" type="image/webp">
+</head>
+<body>
+<main id="app">
+
+<!-- HOME -->
+<section id="v-home" class="view home">
+  <h1 class="sr">VOTe 1.0 — Voice Occupational Therapy. Speak. Structure. Document.</h1>
+  <div class="logo-wrap"><img vite-ignore src="/.netlify/images?url=/img/logo.webp&w=680&fm=webp" alt="Logo VOTe 1.0, Voice Occupational Therapy, Speak, Structure, Document. Created by @chuadsteady" width="640" height="640"></div>
+  <p class="lede">Ceritakan apa yang berlaku dalam sesi. VOTe menstrukturkannya menjadi draf nota SOAP untuk anda semak.</p>
+  <div class="actions" id="home-access">
+    <button class="btn primary" id="h-guest">Continue as Guest</button>
+    <button class="btn" id="h-login">Sign Up / Log In</button>
+    <button class="btn ghost" id="h-admin">Admin Log In</button>
+    <p class="small muted" style="margin:0">Tetamu: tiada log masuk, tiada analitik, penjanaan AI melalui salin-tampal ke ChatGPT atau Gemini. Pengguna pilot yang log masuk mendapat penjanaan SOAP automatik.</p>
+  </div>
+  <div class="actions hidden" id="home-choose">
+    <p id="home-who" class="small muted" style="margin:0"></p>
+    <div class="small"><b>Pilih di bawah</b></div>
+    <button class="btn primary" id="h-start">🎙️ MULA CERITA</button>
+    <button class="btn" id="h-guide">💡 PANDUAN SOAP</button>
+    <button class="btn" id="h-lib">📚 OT LIBRARY (sahaja)</button>
+    <button class="btn ghost sm" id="h-switch">Tukar mod akses</button>
+  </div>
+  <div class="actions"><button class="btn" id="h-share">🔗 KONGSI VOTe 1.0 KEPADA RAKAN OT</button></div>
+  <div class="footer">Created by @chuadsteady</div>
+</section>
+
+<!-- SESSION -->
+<section id="v-session" class="view hidden">
+  <div class="view-head">
+    <h2>Current session</h2>
+    <span class="status" id="status"><span class="dot"></span><span id="status-t">Belum mula</span></span>
+  </div>
+  <div class="session">
+    <div class="left stack">
+      <div class="card stack">
+        <div class="lang" role="group" aria-label="Bahasa pertuturan">
+          <button class="chip" data-lang="ms-MY" aria-pressed="true">Bahasa Melayu</button>
+          <button class="chip" data-lang="en-MY" aria-pressed="false">English</button>
+          <button class="chip" data-lang="rojak" aria-pressed="false">Rojak BM–EN</button>
+        </div>
+        <button class="btn primary mic-btn block" id="b-mic">🎙️ MULA CERITA</button>
+        <div class="small muted">Jika mikrofon tidak berfungsi, ketuk kotak teks dan guna ikon mikrofon pada papan kekunci telefon untuk dikte.</div>
+        <div class="row">
+          <button class="btn" id="b-pause" disabled>⏸️ PAUSE</button>
+          <button class="btn" id="b-resume" disabled>▶️ RESUME</button>
+          <button class="btn" id="b-add">➕ TAMBAH MAKLUMAT</button>
+        </div>
+        <div id="addbox" class="hidden stack">
+          <textarea class="field" id="add-text" rows="3" placeholder="Taip maklumat tambahan di sini…" aria-label="Maklumat tambahan"></textarea>
+          <button class="btn sm" id="b-add-go">Tambah ke sesi</button>
+        </div>
+        <div>
+          <textarea class="transcript" id="transcript" aria-label="Transkrip sesi semasa" placeholder="Tekan MULA CERITA dan bercakap seperti anda bercerita kepada rakan terapis. Anda juga boleh menaip di sini."></textarea>
+          <div class="interim" id="interim" aria-live="polite"></div>
+          <div class="row">
+            <button class="btn sm ghost" id="b-undo">↩ Buang ayat terakhir</button>
+            <button class="btn sm ghost" id="b-sample">Cuba contoh</button>
+          </div>
+        </div>
+        <div class="stack" style="gap:6px">
+          <span class="small muted">Bahasa laporan SOAP (input boleh BM, English atau campur; English secara automatik setiap sesi baharu):</span>
+          <div class="lang" role="group" aria-label="Bahasa laporan SOAP">
+            <button class="chip" data-rlang="en" aria-pressed="true">English</button>
+            <button class="chip" data-rlang="ms" aria-pressed="false">Bahasa Melayu</button>
+          </div>
+        </div>
+        <button class="btn primary block" id="b-gen">✨ JANA SOAP</button>
+        <div class="row">
+          <button class="btn sm" id="b-guide">💡 PANDUAN SOAP</button>
+          <button class="btn sm danger" id="b-new">➕ KLIEN BAHARU</button>
+        </div>
+        <p class="small muted" style="margin:0">Maklumat sesi hanya disimpan sementara dalam skrin ini dan dibuang bila anda mula klien baharu atau tutup halaman.</p>
+      </div>
+    </div>
+
+    <div class="right stack" id="right">
+      <div class="empty" id="empty">Draf SOAP akan muncul di sini selepas anda menekan <b>JANA SOAP</b>.</div>
+      <div id="result" class="stack hidden">
+        <div id="unclass" class="notice hidden">Some information could not be confidently classified. Please review the draft.</div>
+        <div id="cards" class="stack"></div>
+        <details class="card" id="src-note"><summary>📖 Sumber rujukan format SOAP</summary>
+          <p class="small" style="margin:8px 0 0">Struktur S/O/A/P mengikut <b>Panduan Dokumentasi (Format SOAP) Perkhidmatan Terapi Cara Kerja, Kementerian Kesihatan Malaysia, Edisi Pertama 2023</b> (Jawatankuasa Teknikal Perkhidmatan Terapi Cara Kerja, KKM). Rujukan: S Bahagian 5 (m/s 3-4), O Bahagian 6 (m/s 5-9), A Bahagian 7 (m/s 10-15), P Bahagian 8 (m/s 16-17). Rujukan ini dipaparkan di skrin sahaja dan tidak termasuk dalam Copy atau Export.</p>
+        </details>
+        <div class="row" id="edit-row">
+          <button class="btn" id="b-edit">✏️ EDIT</button>
+          <button class="btn" id="b-check">🔎 CLINICAL CHECK</button>
+        </div>
+        <div class="row hidden" id="save-row">
+          <button class="btn primary" id="b-save">SAVE EDITS</button>
+          <button class="btn" id="b-cancel">CANCEL</button>
+        </div>
+        <div id="check" class="card stack hidden">
+          <h3>🔎 Clinical Check</h3>
+          <p class="small muted" style="margin:0">Peringatan sahaja, bukan diagnosis. Anda boleh teruskan walaupun ada amaran.</p>
+          <ul class="flags" id="flags"></ul>
+          <div class="checks">
+            <label><input type="checkbox" class="ck"> <span>I have reviewed the generated SOAP.</span></label>
+            <label><input type="checkbox" class="ck"> <span>I have verified that no clinical information was fabricated.</span></label>
+            <label><input type="checkbox" class="ck"> <span>I accept responsibility for the final clinical documentation.</span></label>
+          </div>
+          <button class="btn primary block" id="b-ack" disabled>✓ FAHAM &amp; TERUSKAN</button>
+        </div>
+        <div class="card stack" id="outbox">
+          <h3>Keluarkan SOAP</h3>
+          <p class="small muted" style="margin:0" id="out-hint">Selesaikan Clinical Check dahulu untuk membuka salin dan eksport.</p>
+          <div class="row">
+            <button class="btn primary" id="b-copy">📋 COPY SOAP</button>
+            <button class="btn" id="b-export">📄 EXPORT SOAP</button>
+            <button class="btn" id="b-share">📤 SHARE VOTe</button>
+          </div>
+          <p class="small muted" style="margin:0">Kongsi VOTe bermaksud berkongsi pautan aplikasi, bukan nota klinikal. Penghantaran terus nota klien ke WhatsApp, Telegram, e-mel atau media sosial tidak disokong dalam V1.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GUIDE -->
+<section id="v-guide" class="view hidden">
+  <div class="view-head"><h2>💡 Panduan SOAP</h2><button class="btn sm ghost" id="g-back">Kembali</button></div>
+  <div class="card stack">
+    <div class="lang" role="group" aria-label="Mod panduan">
+      <button class="chip" data-gm="quick" aria-pressed="true">Quick mode</button>
+      <button class="chip" data-gm="guided" aria-pressed="false">Guided mode</button>
+    </div>
+    <div id="g-quick" class="stack">
+      <p>Bercakap secara semula jadi. VOTe akan mengasingkan maklumat ke dalam S, O, A dan P apabila anda menekan JANA SOAP. Anda tidak perlu bercakap dalam format SOAP.</p>
+      <p class="small muted" style="margin:0">Sumber rujukan: Panduan Dokumentasi (Format SOAP) Perkhidmatan Terapi Cara Kerja, KKM, Edisi Pertama 2023.</p>
+      <button class="btn primary" id="g-go-quick">🎙️ MULA CERITA</button>
+    </div>
+    <div id="g-guided" class="stack hidden">
+      <div class="stepper" id="stepper"></div>
+      <div id="g-title"><b></b></div>
+      <ul class="qs" id="g-qs"></ul>
+      <textarea class="guide-area" id="g-text" aria-label="Jawapan bahagian semasa" placeholder="Taip atau gunakan mikrofon. Boleh dikosongkan jika tiada maklumat."></textarea>
+      <div class="interim" id="g-interim"></div>
+      <div class="row">
+        <button class="btn" id="g-mic">🎙️ Cakap</button>
+        <button class="btn ghost" id="g-prev">‹ Sebelum</button>
+        <button class="btn primary" id="g-next">Seterusnya ›</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LIBRARY -->
+<section id="v-library" class="view hidden">
+  <div class="view-head"><div><h2>📚 OT Library</h2><div class="muted">Think. Search. Apply.</div></div></div>
+  <div class="stack">
+    <div class="card stack">
+      <div class="chips" id="lib-sections" role="group" aria-label="Bahagian OT Library"></div>
+      <div class="searchrow">
+        <input id="lib-q" type="search" placeholder="Explain this term…" aria-label="Explain this term">
+        <button class="btn primary" id="lib-go">Cari</button>
+      </div>
+      <div class="chips" id="lib-starters"></div>
+      <div class="lang" id="lib-mode" role="group" aria-label="Sumber AI">
+        <button class="chip" data-mode="auto" aria-pressed="true">Claude (automatik)</button>
+        <button class="chip" data-mode="manual" aria-pressed="false">ChatGPT / Gemini (salin-tampal)</button>
+      </div>
+      <div class="small muted">Kandungan dijana AI sebagai rujukan pemikiran. Sentiasa sahkan rujukan sebelum digunakan. VOTe tidak mereka rujukan; jika tidak pasti, ia akan menyatakannya.</div>
+    </div>
+    <div id="paste-panel" class="card stack hidden"></div>
+    <div id="pain-panel" class="stack hidden"></div>
+    <div id="doc-panel" class="stack hidden"></div>
+    <div id="dsm-panel" class="stack hidden"></div>
+    <div id="lib-out" class="stack"></div>
+    <div class="card stack">
+      <h3>🔎 Explore this case</h3>
+      <p class="small muted" style="margin:0">Berdasarkan maklumat sesi semasa, VOTe membantu mengenal pasti okupasi, kesukaran prestasi, domain OTPF-4, kawasan penilaian, pilihan intervensi, idea pendidikan penjaga dan bukti yang relevan.</p>
+      <div class="notice">VOTe can help the therapist think, but cannot replace clinical judgement.</div>
+      <button class="btn" id="lib-explore">🔎 EXPLORE THIS CASE</button>
+      <div id="explore-out" class="stack"></div>
+    </div>
+  </div>
+</section>
+
+<!-- SETTINGS -->
+<section id="v-settings" class="view hidden">
+  <div class="view-head"><h2>⚙️ Settings</h2></div>
+  <div class="stack">
+    <div class="card stack">
+      <h3>Paparan</h3>
+      <div class="lang" role="group" aria-label="Tema">
+        <button class="chip" data-theme="auto" aria-pressed="true">Auto</button>
+        <button class="chip" data-theme="light" aria-pressed="false">Cerah</button>
+        <button class="chip" data-theme="dark" aria-pressed="false">Gelap</button>
+      </div>
+    </div>
+    <div class="card stack">
+      <h3>Privasi</h3>
+      <p class="small" style="margin:0">What doesn't need to be stored, isn't stored. VOTe tidak mempunyai pangkalan data pesakit. Transkrip dan SOAP hanya wujud sementara dalam skrin ini. Jangan masukkan nama, No. KP, MRN, alamat atau telefon pesakit. Data klinikal tidak digunakan untuk latihan AI atau analitik. Dalam mod automatik, teks sesi dihantar melalui Netlify AI Gateway kepada model Claude (Anthropic) hanya untuk menjana draf dan tidak disimpan oleh VOTe. Sambungan HTTPS/TLS digunakan.</p>
+      <button class="btn sm" id="s-disclaimer">Lihat semula penafian</button>
+    </div>
+    <div class="card stack">
+      <h3>Sumber rujukan</h3>
+      <p class="small" style="margin:0"><b>Format dokumentasi SOAP:</b> Panduan Dokumentasi (Format SOAP) Perkhidmatan Terapi Cara Kerja, Kementerian Kesihatan Malaysia, Edisi Pertama 2023. Jawatankuasa Teknikal Perkhidmatan Terapi Cara Kerja, KKM. Hak cipta panduan kekal pada KKM; VOTe merujuk struktur panduan dan tidak menyalin teks penuhnya.</p>
+      <p class="small" style="margin:0"><b>Rangka kerja klinikal:</b> American Occupational Therapy Association. (2020). Occupational therapy practice framework: Domain and process (4th ed.). American Journal of Occupational Therapy, 74(Suppl. 2), 7412410010.</p>
+      <p class="small" style="margin:0"><b>Rujukan dalam panduan KKM:</b> Gateley, C. A., &amp; Borcherding, S. (2017). Documentation manual for occupational therapy: Writing SOAP notes (4th ed.). SLACK.</p>
+    </div>
+    <div class="card stack">
+      <h3>Analitik pilot</h3>
+      <p class="small" style="margin:0">Hanya kiraan penggunaan tanpa nama direkodkan: bilangan sesi, SOAP dijana/disunting/disalin/dieksport, penggunaan Library dan Panduan, kongsi pautan VOTe, klien baharu, purata masa dokumentasi, markah kebolehgunaan dan maklum balas anda. Tiada nama pesakit, No. KP, MRN, transkrip atau kandungan SOAP direkodkan. Hanya pengguna yang log masuk direkodkan; tetamu tidak. Hanya pencipta (@chuadsteady) boleh melihat ringkasan agregat.</p>
+    </div>
+    <div class="card stack">
+      <h3>Maklum balas</h3>
+      <div class="stars" id="stars" role="group" aria-label="Penilaian kebolehgunaan 1 hingga 5"></div>
+      <textarea class="field" id="fb-text" rows="3" placeholder="Apa yang membantu atau perlu diperbaiki? (jangan masukkan maklumat pesakit)" aria-label="Maklum balas"></textarea>
+      <button class="btn" id="fb-send">Hantar maklum balas</button>
+    </div>
+    <div class="card stack hidden" id="admin">
+      <h3>Papan pemuka pencipta</h3>
+      <p class="small muted" style="margin:0">Hanya anda (pemilik) nampak bahagian ini. Data agregat tanpa nama; tiada maklumat pesakit atau kandungan SOAP.</p>
+      <button class="btn sm" id="ad-load">Muat semula data</button>
+      <div id="ad-out" class="stack"></div>
+    </div>
+    <div class="footer">VOTe 1.0 · Voice Occupational Therapy<br>Created by @chuadsteady</div>
+  </div>
+</section>
+</main>
+
+<nav aria-label="Navigasi utama">
+  <div class="brand"><img vite-ignore src="/.netlify/images?url=/img/logo-sm.webp&w=160&fm=webp" alt="VOTe" width="160" height="160"></div>
+  <button data-go="home" aria-current="page"><span class="ic">🏠</span>HOME</button>
+  <button data-go="session"><span class="ic">🎙️</span>SESSION</button>
+  <button data-go="library"><span class="ic">📚</span>OT LIBRARY</button>
+  <button data-go="settings"><span class="ic">⚙️</span>SETTINGS</button>
+</nav>
+
+<div id="overlay" class="overlay hidden"><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
+
+<script type="module" src="/src/app.js"></script>
+</body>
+</html>
